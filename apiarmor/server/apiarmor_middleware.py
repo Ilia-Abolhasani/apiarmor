@@ -1,9 +1,9 @@
 import time
 from flask import abort, request
-from ..shared import hash_message
+from ..shared import hash_message, get_timestamp_utc
 
 
-class APIArmorMiddleware:
+class ApiArmorMiddleware:
     def __init__(self, secret_key, min_time_difference=60, ip_whitelist=None):
         self.secret_key = secret_key
         self.min_time_difference = min_time_difference
@@ -31,7 +31,7 @@ class APIArmorMiddleware:
         pass
 
     def _validate_timestamp(self, client_timestamp):
-        current_timestamp = time.time()
+        current_timestamp = get_timestamp_utc()
         time_difference = abs(current_timestamp - client_timestamp)
 
         if time_difference > self.min_time_difference:
