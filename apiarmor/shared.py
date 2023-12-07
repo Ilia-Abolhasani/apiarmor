@@ -1,7 +1,12 @@
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+import json
+from hashlib import sha256
 from datetime import datetime, timezone
+
+
+class DotDict(dict):
+    __getattr__ = dict.get
+    __setattr__ = dict.__setitem__
+    __delattr__ = dict.__delitem__
 
 
 def get_timestamp_utc():
@@ -10,16 +15,12 @@ def get_timestamp_utc():
     return utc_timestamp
 
 
-def hash_message(secret_key, timestamp, url, query, body):
-    message = url + query + body + timestamp + secret_key
-    kdf = PBKDF2HMAC(
-        algorithm=hashes.SHA256(),
-        salt=b"salt",
-        iterations=100000,
-        length=32,
-        backend=default_backend(),
-    )
-    key = kdf.derive(secret_key)
-    digest = hashes.Hash(hashes.SHA256(), backend=default_backend())
-    digest.update(message)
-    return key, digest.finalize()
+def hash_message(secret_key, timestamp, url, body):
+    delimiter = "-"
+    message = ""
+    message += url + delimiter
+    message += json.dumps(body) + delimiter
+    message += str(timestamp) + delimiter
+    message += secret_key
+    hash = sha256(message.encode("utf-8")).hexdigest()
+    return hash

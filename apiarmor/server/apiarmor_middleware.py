@@ -4,10 +4,15 @@ from ..shared import hash_message, get_timestamp_utc
 
 
 class ApiArmorMiddleware:
-    def __init__(self, secret_key, min_time_difference=60, ip_whitelist=None):
+    def __init__(
+        self,
+        secret_key,
+        ip_whitelist=None,
+        min_time_difference=60,
+    ):
         self.secret_key = secret_key
-        self.min_time_difference = min_time_difference
         self.ip_whitelist = set(ip_whitelist) if ip_whitelist else None
+        self.min_time_difference = min_time_difference
 
     def _get_client_timestamp(self):
         client_timestamp = request.headers.get("Timestamp")
